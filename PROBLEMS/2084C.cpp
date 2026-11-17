@@ -1,0 +1,131 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+namespace rgs = std::ranges;
+
+#define PARENS ()
+
+#define EXPAND(...) EXPAND4(EXPAND4(EXPAND4(EXPAND4(__VA_ARGS__))))
+#define EXPAND4(...) EXPAND3(EXPAND3(EXPAND3(EXPAND3(__VA_ARGS__))))
+#define EXPAND3(...) EXPAND2(EXPAND2(EXPAND2(EXPAND2(__VA_ARGS__))))
+#define EXPAND2(...) EXPAND1(EXPAND1(EXPAND1(EXPAND1(__VA_ARGS__))))
+#define EXPAND1(...) __VA_ARGS__
+
+#define FOR_EACH(macro, ...)                                    \
+    __VA_OPT__(EXPAND(FOR_EACH_HELPER(macro, __VA_ARGS__)))
+
+#define FOR_EACH_HELPER(macro, a1, ...)                         \
+    macro(a1)                                                   \
+    __VA_OPT__(FOR_EACH_AGAIN PARENS (macro, __VA_ARGS__))
+
+#define FOR_EACH_AGAIN() FOR_EACH_HELPER
+
+#define DEBUG_PART(x) std::cout << " " #x ":" << (x);
+
+#define DEBUG(...)                                              \
+    do {                                                        \
+        std::cout << "[DEBUG]:";                                \
+        FOR_EACH(DEBUG_PART, __VA_ARGS__)                       \
+        std::cout << std::endl;                                 \
+    } while (0)
+
+using ll = long long;
+using vi = vector<int>;
+using vll = vector<ll>;
+using ld = long double;
+using vld = vector<long double>;
+
+#define YES cout << "YES\n"
+#define NO cout << "NO\n"
+constexpr int inf   = 1'000'000'000;
+constexpr ll  infLL = 0xffffffffLL;
+
+template<class T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& v);
+template<class T>
+vector<T> operator+(const vector<T>& a, const vector<T>& b);
+
+
+void preprocess() {
+
+}
+
+void solve() {
+    int n;
+    cin >> n;
+    vi a(n+1), b(n+1), pa(n+1);
+    for (int i = 1; i <= n; ++i) {
+        cin >> a[i];
+        pa[a[i]] = i;
+    }
+    for (int i = 1; i <= n; ++i) {
+        cin >> b[i];
+    }
+    int psame = 0;
+    for (int i = 1; i <= n; ++i) {
+        if (a[i] == b[i]) {
+            if (psame || n % 2 == 0) {
+                cout << -1 << endl;
+                return;
+            }
+            psame = i;
+        } else {
+            if (b[pa[b[i]]] != a[i]) {
+                cout << -1 << endl;
+                return;
+            }
+        }
+    }
+    vector<vi> ans(n+1, vi(2));
+    int j = 0;
+    auto construct = [&](int x, int y) {
+        if (x == y) return;
+        ++j;
+        ans[j][0] = x;
+        ans[j][1] = y;
+        swap(a[x], a[y]);
+        swap(pa[a[x]], pa[a[y]]);
+        swap(b[x], b[y]);
+    };
+    if (n & 1) {
+        if (psame == 0) {
+            cout << -1 << endl;
+            return;
+        }
+        construct(psame, (n+1)/2);
+    }
+    for (int i = 1; i <= n / 2; ++i) {
+        construct(pa[b[i]], n-i+1);
+    }
+    cout << j << endl;
+    for (int i = 1; i <= j; ++i) {
+        cout << ans[i][0] << " " << ans[i][1] << endl;
+    }
+}
+int main() {
+    preprocess();
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int t;
+    cin >> t;
+    while (t--) solve();
+}
+
+template<class T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& v) {
+    for (int i = 0; i < v.size(); ++i) {
+        os << (i > 0 ? " " : "") << v[i];
+    }
+    return os;
+}
+
+template<class T>
+vector<T> operator+(const vector<T>& a, const vector<T>& b) {
+    if (a.size() != b.size()) return {};
+    vector<T> res(a.size());
+    for (int i = 0; i < a.size(); ++i) {
+        res[i] = a[i] + b[i];
+    }
+    return res;
+}
